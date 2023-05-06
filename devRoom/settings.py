@@ -94,7 +94,7 @@ WSGI_APPLICATION = 'devRoom.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-if 'test' in sys.argv or 'test\_coverage' in sys.argv: #Covers regular testing and django-coverage
+if 'test' in sys.argv or 'test\_coverage' in sys.argv:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
