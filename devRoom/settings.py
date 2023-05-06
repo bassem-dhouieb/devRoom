@@ -12,8 +12,19 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+
+class DisableMigrations(object):
+
+    def __contains__(self, item):
+        return True
+
+    def __getitem__(self, item):
+        return None
 
 
 # Quick-start development settings - unsuitable for production
@@ -83,18 +94,26 @@ WSGI_APPLICATION = 'devRoom.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django_yugabytedb',      
-        'NAME':os.getenv('DATABASE_NAME'),
-        'USER':os.getenv('DATABASE_USER'),
-        'PASSWORD':os.getenv('DATABASE_PASSWORD'),
-        'HOST':os.getenv('DATABASE_HOST'),
-        'PORT': 5433,
-        'CONN_MAX_AGE': None
+if 'test' in sys.argv or 'test\_coverage' in sys.argv: #Covers regular testing and django-coverage
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:'
+        }
     }
-}
+    MIGRATION_MODULES = DisableMigrations()
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django_yugabytedb',      
+            'NAME':os.getenv('DATABASE_NAME'),
+            'USER':os.getenv('DATABASE_USER'),
+            'PASSWORD':os.getenv('DATABASE_PASSWORD'),
+            'HOST':os.getenv('DATABASE_HOST'),
+            'PORT': 5433,
+            'CONN_MAX_AGE': None
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
