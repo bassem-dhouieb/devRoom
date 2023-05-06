@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-5zr10kmuf#+no@w9m5o(ppl!-%ywlq-tm5btuouoppc)qf3rf%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -86,11 +86,15 @@ WSGI_APPLICATION = 'devRoom.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django_yugabytedb',      
+        'NAME':os.getenv('DATABASE_NAME'),
+        'USER':os.getenv('DATABASE_USER'),
+        'PASSWORD':os.getenv('DATABASE_PASSWORD'),
+        'HOST':os.getenv('DATABASE_HOST'),
+        'PORT': 5433,
+        'CONN_MAX_AGE': None
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
