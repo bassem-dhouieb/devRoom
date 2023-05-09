@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-room
+  namespace: dev-room    
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dev-room
+  template:
+    metadata:
+      labels:
+        app: dev-room
+    spec:
+      containers:
+      - name: dev-room
+        image: devroomregistry.azurecr.io/devroom:v0.9.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_HOST
+          value: "yb-tservers.dev-room.svc.cluster.local"
+        - name: DATABASE_USER
+          value: "django"
+        - name: DATABASE_PASSWORD
+          value: "2b9afb89a6acc1575b159bfca38d10ad"
+        - name: DATABASE_NAME
+          value: "devroom"
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - dev-room
+              topologyKey: "kubernetes.io/hostname"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-svc
+  namespace: dev-room
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  selector:
+    app: dev-room
