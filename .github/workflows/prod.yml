@@ -25,7 +25,7 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Build image on ACR
-      uses: azure/CLI@61bb69d64d613b52663984bf12d6bac8fd7b3cc8
+      uses: azure/CLI@v1
       with:
         azcliversion: 2.29.1
         inlineScript: |
@@ -41,7 +41,7 @@ jobs:
       id: login
 
     - name: Deploys application
-      uses: Azure/k8s-deploy@dd4bbd13a5abd2fc9ca8bdcb8aee152bb718fa78
+      uses: Azure/k8s-deploy@v4
       with:
         manifests:  manifests/deployment.yml
         images: |
