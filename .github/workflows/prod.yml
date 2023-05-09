@@ -1,0 +1,50 @@
+# GitHub recommends pinning actions to a commit SHA.
+# To get a newer version, you will need to update the SHA.
+# You can also reference a tag or branch, but the action may change without warning.
+
+name: Build and deploy to Azure Kubernetes Service
+
+env:
+  AZURE_CONTAINER_REGISTRY: devRoomACR # set this to the name of your container registry
+  PROJECT_NAME: devroom              # set this to your project's name
+  RESOURCE_GROUP: devRoomRG          # set this to the resource group containing your AKS cluster
+  CLUSTER_NAME: devRoomAKSCluster              # set this to the name of your AKS cluster
+  REGISTRY_URL: devroomregistry.azurecr.io              # set this to the URL of your registry
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@14a755a4e2fd6dff25794233def4f2cf3f866955
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Build image on ACR
+      uses: azure/CLI@61bb69d64d613b52663984bf12d6bac8fd7b3cc8
+      with:
+        azcliversion: 2.29.1
+        inlineScript: |
+          az configure --defaults acr=${{ env.AZURE_CONTAINER_REGISTRY }}
+          az acr build -t  -t ${{ env.REGISTRY_URL }}/${{ env.PROJECT_NAME }}:${{ github.sha }}
+    
+    - name: Gets K8s context
+      uses: azure/aks-set-context@94ccc775c1997a3fcfbfbce3c459fec87e0ab188
+      with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          resource-group: ${{ env.RESOURCE_GROUP }}
+          cluster-name: ${{ env.CLUSTER_NAME }}
+      id: login
+
+    - name: Deploys application
+      uses: Azure/k8s-deploy@dd4bbd13a5abd2fc9ca8bdcb8aee152bb718fa78
+      with:
+        manifests:  manifests/deployment.yml
+        images: |
+          ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.PROJECT_NAME }}:${{ github.sha }}
+        imagepullsecrets: |
+          ${{ env.PROJECT_NAME }}
