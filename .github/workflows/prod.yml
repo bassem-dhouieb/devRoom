@@ -5,7 +5,7 @@
 name: Build and deploy to Azure Kubernetes Service
 
 env:
-  AZURE_CONTAINER_REGISTRY: devRoomACR # set this to the name of your container registry
+  AZURE_CONTAINER_REGISTRY: devroomregistry # set this to the name of your container registry
   PROJECT_NAME: devroom              # set this to your project's name
   RESOURCE_GROUP: devRoomRG          # set this to the resource group containing your AKS cluster
   CLUSTER_NAME: devRoomAKSCluster              # set this to the name of your AKS cluster
